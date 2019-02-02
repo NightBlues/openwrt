@@ -18,7 +18,7 @@ define Build/sunxi-sdcard
 	mkfs.fat $@.boot -C $(FAT32_BLOCKS)
 
 	mcopy -i $@.boot $(STAGING_DIR_IMAGE)/$(DEVICE_NAME)-boot.scr ::boot.scr
-	mcopy -i $@.boot $(DTS_DIR)/$(SUNXI_DTS).dtb ::dtb
+	mcopy -i $@.boot $(if $(DEVICE_DTS_DIR),$(DEVICE_DTS_DIR),$(DTS_DIR))/$(SUNXI_DTS).dtb ::dtb
 	mcopy -i $@.boot $(IMAGE_KERNEL) ::uImage
 	./gen_sunxi_sdcard_img.sh $@ \
 		$@.boot \
@@ -38,6 +38,12 @@ define Device/Default
   IMAGES := sdcard.img.gz
   IMAGE/sdcard.img.gz := sunxi-sdcard | append-metadata | gzip
 endef
+
+define Build/make-dtb
+	$(call Image/BuildDTB,$(DEVICE_DTS_DIR)/$(SUNXI_DTS).dts,$(DEVICE_DTS_DIR)/$(SUNXI_DTS).dtb)
+endef
+
+
 
 include cortex-a7.mk
 include cortex-a8.mk
